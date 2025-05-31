@@ -1,0 +1,747 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Image to PDF Converter</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+  }
+
+  .header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #667eea;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .menu-toggle:hover {
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  .nav-menu {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-menu a:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 300px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    transition: right 0.3s ease;
+    padding: 2rem;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar.active {
+    right: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #667eea;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .close-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  .sidebar-menu {
+    list-style: none;
+  }
+
+  .sidebar-menu li {
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .sidebar-menu a:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .title {
+    text-align: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .converter-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .upload-area {
+    border: 3px dashed #667eea;
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    background: rgba(102, 126, 234, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-area:hover {
+    border-color: #764ba2;
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .upload-area.dragover {
+    border-color: #764ba2;
+    background: rgba(102, 126, 234, 0.15);
+    transform: scale(1.02);
+  }
+
+  .upload-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .upload-area:hover .upload-icon {
+    color: #764ba2;
+    transform: scale(1.1);
+  }
+
+  .upload-text {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .upload-subtext {
+    font-size: 0.9rem;
+    color: #999;
+  }
+
+  .file-input {
+    display: none;
+  }
+
+  .file-info {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: none;
+    text-align: left;
+  }
+
+  .file-info.active {
+    display: block;
+  }
+
+  .file-details {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .file-icon {
+    font-size: 2rem;
+    color: #667eea;
+  }
+
+  .file-meta {
+    flex: 1;
+  }
+
+  .file-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+
+  .file-size {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .remove-file {
+    background: rgba(255, 0, 0, 0.1);
+    border: none;
+    color: #ff4757;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+  }
+
+  .remove-file:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: scale(1.1);
+  }
+
+  .preview-container {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+  }
+
+  .preview-container.active {
+    display: block;
+  }
+
+  .preview-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: contain;
+    background: #f8f9fa;
+  }
+
+  .convert-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .convert-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+  }
+
+  .convert-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    color: #667eea;
+  }
+
+  .loading.active {
+    display: flex;
+  }
+
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(102, 126, 234, 0.3);
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .success-message {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .success-message.active {
+    display: flex;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .feature {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .feature:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .feature-icon {
+    font-size: 2.5rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .feature-text {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      padding: 1rem;
+    }
+
+    .nav-menu {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+
+    .title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .container {
+      padding: 1rem;
+    }
+
+    .converter-section {
+      padding: 2rem 1.5rem;
+    }
+
+    .upload-area {
+      padding: 2rem 1rem;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+    }
+
+    .upload-text {
+      font-size: 1rem;
+    }
+
+    .convert-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .sidebar {
+      width: 100%;
+      right: -100%;
+    }
+
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 1.5rem;
+    }
+
+    .converter-section {
+      padding: 1.5rem 1rem;
+    }
+
+    .upload-area {
+      padding: 1.5rem 0.5rem;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+    }
+  }
+</style>
+
+<header class="header">
+  <div class="logo">
+    <i class="fas fa-file-pdf"></i>
+    PDF Converter
+  </div>
+  <nav class="nav-menu">
+    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+    <a href="a4size.html"><i class="fas fa-file-alt"></i> A4 Size Crop</a>
+    <a href="aadhaar_size.html"><i class="fas fa-id-card"></i> 2 Image PDF</a>
+    <a href="crop.html"><i class="fas fa-crop"></i> Card Crop</a>
+    <a href="imagetopdf.html"><i class="fas fa-file-pdf"></i> Image to PDF</a>
+    <a href="collage.html"><i class="fas fa-images"></i> Chart</a>
+  </nav>
+  <button class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <i class="fas fa-file-pdf"></i>
+      Menu
+    </div>
+    <button class="close-btn" id="closeBtn">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+    <li><a href="a4size.html"><i class="fas fa-file-alt"></i> A4 Size Crop</a></li>
+    <li><a href="aadhaar_size.html"><i class="fas fa-id-card"></i> 2 Image PDF</a></li>
+    <li><a href="crop.html"><i class="fas fa-crop"></i> Card Crop</a></li>
+    <li><a href="imagetopdf.html"><i class="fas fa-file-pdf"></i> Image to PDF</a></li>
+    <li><a href="collage.html"><i class="fas fa-images"></i> Chart</a></li>
+  </ul>
+</div>
+
+<div class="container">
+
+  <div class="converter-section">
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+      <div class="upload-text">Click to upload or drag & drop</div>
+      <div class="upload-subtext">Supports JPG, PNG, GIF, BMP, WEBP</div>
+      <input type="file" id="imageInput" class="file-input" accept="image/*">
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <div class="file-details">
+        <i class="fas fa-image file-icon"></i>
+        <div class="file-meta">
+          <div class="file-name" id="fileName"></div>
+          <div class="file-size" id="fileSize"></div>
+        </div>
+        <button class="remove-file" id="removeFile">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-container" id="previewContainer">
+      <img class="preview-image" id="previewImage" alt="Preview">
+    </div>
+
+    <button class="convert-btn" id="convertBtn" onclick="convertToPDF()">
+      <i class="fas fa-magic"></i>
+      Convert to PDF
+    </button>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span>Converting to PDF...</span>
+    </div>
+
+    <div class="success-message" id="successMessage">
+      <i class="fas fa-check-circle"></i>
+      <span>PDF generated successfully!</span>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
+  const uploadArea = document.getElementById('uploadArea');
+  const imageInput = document.getElementById('imageInput');
+  const fileInfo = document.getElementById('fileInfo');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const removeFile = document.getElementById('removeFile');
+  const previewContainer = document.getElementById('previewContainer');
+  const previewImage = document.getElementById('previewImage');
+  const convertBtn = document.getElementById('convertBtn');
+  const loading = document.getElementById('loading');
+  const successMessage = document.getElementById('successMessage');
+  let currentFile = null;
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+  });
+
+  closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+
+  function closeSidebar() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+  }
+
+  uploadArea.addEventListener('click', () => {
+    imageInput.click();
+  });
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  });
+
+  imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  removeFile.addEventListener('click', () => {
+    clearFile();
+  });
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
+
+    currentFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    fileInfo.classList.add('active');
+    convertBtn.disabled = false;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.src = e.target.result;
+      previewContainer.classList.add('active');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearFile() {
+    currentFile = null;
+    imageInput.value = '';
+    fileInfo.classList.remove('active');
+    previewContainer.classList.remove('active');
+    convertBtn.disabled = true;
+    successMessage.classList.remove('active');
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  function loadImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function convertToPDF() {
+    if (!currentFile) {
+      alert("Please upload an image.");
+      return;
+    }
+
+    loading.classList.add('active');
+    convertBtn.disabled = true;
+    successMessage.classList.remove('active');
+
+    try {
+      const fileName = currentFile.name.split('.').slice(0, -1).join('.') || 'image';
+      const img = await loadImage(currentFile);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const compressedImage = canvas.toDataURL("image/jpeg", 0.6);
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: img.width > img.height ? "landscape" : "portrait",
+        unit: "px",
+        format: [img.width, img.height]
+      });
+
+      pdf.addImage(compressedImage, "JPEG", 0, 0, img.width, img.height);
+      pdf.save(fileName + ".pdf");
+
+      setTimeout(() => {
+        loading.classList.remove('active');
+        successMessage.classList.add('active');
+        convertBtn.disabled = false;
+      }, 1000);
+    } catch (error) {
+      loading.classList.remove('active');
+      convertBtn.disabled = false;
+      alert('Error converting to PDF. Please try again.');
+    }
+  }
+
+  convertBtn.disabled = true;
+</script>
